@@ -6,12 +6,21 @@ from flask_mail import Mail, Message
 from flask_sqlalchemy import SQLAlchemy
 import reverse_geocoder as rg
 from datetime import datetime
+import os
 
 app = Flask(__name__)
 app.secret_key = "your_secret_key_here"
 
-# Database configuration
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///msrtc.db'
+# Database configuration - Vercel/Neon aware
+# Fetch the Vercel/Neon database URL
+db_url = os.environ.get("DATABASE_URL")
+
+# SQLAlchemy requires the URL to start with 'postgresql://' but Neon provides 'postgres://'
+if db_url and db_url.startswith("postgres://"):
+    db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+# Use the cloud database if found on Vercel, otherwise fallback to local SQLite for your computer
+app.config['SQLALCHEMY_DATABASE_URI'] = db_url or 'sqlite:///local_fallback.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 

@@ -133,3 +133,5 @@ output/
 diagram/
 __pycache__/
 .venv/
+.vercel
+.env*.local
